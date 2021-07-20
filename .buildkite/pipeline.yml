@@ -1,0 +1,41 @@
+steps:
+  - label: RSpec Discover
+    command: |
+      echo "--- Bundle"
+      bin/bundle
+
+      echo "+++ RSpec discovery"
+      bin/rspec --dry-run --format json --out tmp/rspec.json
+    artifact_paths:
+      - tmp/rspec.json
+
+  - wait
+
+  - label: RSpec
+    env:
+      RAILS_ENV: test
+    parallelism: 10
+    command: |
+      echo "--- Bundle"
+      bin/bundle
+
+      echo "+++ Running rspec"
+      bin/rake --trace "knapsack_pro:rspec[--seed $${BUILDKITE_BUILD_NUMBER} --format doc --format json --out tmp/rspec-$${BUILDKITE_PARALLEL_JOB}.json]"
+    artifact_paths:
+      - tmp/rspec-*.json
+      - tmp/knapsack_pro/**/*
+
+  - wait
+
+  - label: RSpec Verify
+    command: |
+      echo "--- Bundle"
+      bin/bundle
+
+      echo "--- Download artifacts"
+      buildkite-agent artifact download tmp/rspec.json .
+      buildkite-agent artifact download "tmp/rspec-*.json" .
+
+      echo "+++ RSpec verify"
+      bin/rake rspec:verify
+
