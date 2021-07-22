@@ -71,7 +71,7 @@ GEM
       activesupport (>= 4.2.0)
     i18n (1.8.10)
       concurrent-ruby (~> 1.0)
-    knapsack_pro (2.18.0)
+    knapsack_pro (2.18.1)
       rake
     loofah (2.10.0)
       crass (~> 1.0.2)
